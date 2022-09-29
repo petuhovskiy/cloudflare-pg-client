@@ -1,6 +1,6 @@
 # how to
 
-1. `cd cloudflare-workers-postgres-client && ./build.sh`
+1. `npm install && cd cloudflare-workers-postgres-client && npm install && ./build.sh`
 
 2. change connstr in `src/index.ts`
 
