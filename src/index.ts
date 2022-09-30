@@ -35,9 +35,9 @@ const createClient = () => {
 		hostname: "18.192.67.124",
 		port: 5432,
 		password: "your-super-secret-password"
-	  });
+	});
 
-	  
+
 	// return new Client({
 	//   user: 'petuhovskiy%40zenith',
 	//   database: 'main',
@@ -45,7 +45,7 @@ const createClient = () => {
 	//   password: 'Cbfyq5ec6tmk',
 	//   port: 5432,
 	// });
-  }
+}
 
 export default {
 	async fetch(
@@ -73,23 +73,52 @@ export default {
 		// headers: { "Content-Type": "application/json" },
 		// });
 
+
+
+		// const client = createClient();
+
+		// await client.connect()
+
+
+		// // const array_result = await client.queryArray("SELECT * FROM log_records LIMIT 10");
+		// const array_result = await client.queryArray("SELECT 42");
+		// console.log(array_result.rows); // [[1, 'Carlos'], [2, 'John'], ...]
+
+		//   // const object_result = await client.queryObject("SELECT ID, NAME FROM PEOPLE");
+		//   // console.log(object_result.rows); // [{id: 1, name: 'Carlos'}, {id: 2, name: 'John'}, ...]
+
+		// await client.end();
+
+		// return new Response(JSON.stringify({
+		// 	rows: array_result.rows,
+		// 	request: request,
+		// }));
+
+
 		const client = createClient();
+		await client.connect();
+		const url = new URL(request.url);
+		const { pathname, search, href } = url;
+		const param_name = "?query=";
 
-		await client.connect()
-
-		  
-		// const array_result = await client.queryArray("SELECT * FROM log_records LIMIT 10");
-		const array_result = await client.queryArray("SELECT 42");
-		console.log(array_result.rows); // [[1, 'Carlos'], [2, 'John'], ...]
-		  
-		  // const object_result = await client.queryObject("SELECT ID, NAME FROM PEOPLE");
-		  // console.log(object_result.rows); // [{id: 1, name: 'Carlos'}, {id: 2, name: 'John'}, ...]
-		  
-		await client.end();
-
-		return new Response(JSON.stringify({
-			rows: array_result.rows,
-			request: request,
-		}));
+		if (search.startsWith(param_name)) {
+			let query = search.slice(param_name.length);
+			console.log(`${query}`);
+			const array_result = await client.queryArray(query);
+			console.log(array_result.rows);
+			await client.end();
+			return new Response(JSON.stringify({
+				original_query: query,
+				rows: array_result.rows,
+			}, null, 2));
+		} else {
+			const array_result = await client.queryArray("SELECT 42");
+			console.log(array_result.rows);
+			await client.end();
+			return new Response(JSON.stringify({
+				rows: array_result.rows,
+				request
+			}));
+		}
 	},
 };
